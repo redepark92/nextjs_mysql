@@ -25,7 +25,7 @@ export default function Pagination ({nowPage, totalPages, limit, onPageChange}: 
   let firstNum = Math.floor((nowPage - 1) / limit) * limit + 1;
   let lastNum = Math.floor((nowPage - 1) / limit) * limit + limit;
 
-  console.log({"nowPage is" : nowPage, "limit is" : limit, "lastPages is":lastPages, "firsNum is" : firstNum,  "lastNum is" : lastNum });
+//  console.log({"nowPage is" : nowPage, "limit is" : limit, "lastPages is":lastPages, "firsNum is" : firstNum,  "lastNum is" : lastNum });
 
   // 원본에는 아래처럼 하여야 된다고 하는데, 오류로 계속 나타나서 아래처럼 처리하였다. 
   // {Array(5).fill().map((_, i) =>{  
@@ -41,7 +41,7 @@ export default function Pagination ({nowPage, totalPages, limit, onPageChange}: 
       </button>
 
       
-      {Array(5).fill(0).map((_, i) =>{
+      {Array(limit).fill(0).map((_, i) =>{
         return (
             <button
                 key={i} 

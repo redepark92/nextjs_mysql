@@ -10,14 +10,12 @@ import Link from "next/link";
 import Header from '@/app/components/Header';
 import Footer from '@/app/components/Footer';
 import Pagenation from '@/app/components/Pagenation';
-import MemoList from '@/app/components/MemoList';  // 클라이언트 컴포넌트
 
 
 interface Memo {
   pri_no: string;
   fw_date: string;
   memo_text: string;
-  bg_color: string;
 }
 
 interface Page {
@@ -98,35 +96,13 @@ export default function Memo() {
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-{/* 
-// 메모 목록처리..
       <h1>memo List</h1>
       <ul>
         {memos.map((memo) => (
           <li key={memo.pri_no}> {memo.memo_text} {memo.fw_date}님</li>
         ))}
       </ul>
-*/}
-
-    {/* 메모 그리드 */}
-      <main className="p-8 max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Memo 목록
-        </h1>
-
-        {/* 데이터가 없을 때 빈 상태 표시 */}
-        {memos.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-600 text-lg">
-              {'등록된 메모가 없습니다.'}
-            </p>
-          </div>
-        ) : (
-          // 클라이언트 컴포넌트에 필터링된 상품 목록 전달
-          <MemoList memolist={memos} searchQuery={"totalpage"} />
-        )}
-
-      </main>
+      <div>데이터는 아직 없음</div>
 
 
       <div>

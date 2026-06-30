@@ -20,7 +20,11 @@ export async function GET(request: Request) {
         
 
         // 여기서 목록을 구한다. 
-        const query = `select pri_no, fw_date from ahn_memo order by fw_date limit ${start}, ${scale}`;
+        const query = `
+        select pri_no, bg_color, fw_date, left(memo, 100) AS memo_text from ahn_memo 
+        order by fw_date desc 
+        limit ${start}, ${scale}
+        `;
         const [rows] = await pool.query(query);
 
         // 리턴에, 현재 쿼리의 갯수를 넘기려고 하는데, rows.lenght 에서 오류가 발생해서, 다음처럼 처리하였음. 
