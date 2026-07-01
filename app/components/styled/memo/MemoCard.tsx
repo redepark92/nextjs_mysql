@@ -38,7 +38,7 @@ export default function ProductCard({ memo }: MemoCardProps) {
       {/* 버튼 영역 - Link로 감싸서 상세 페이지로 이동 */}
       <div className="mt-4 pt-4 border-t border-gray-100">
         <Link 
-          href={`/products/${memo.pri_no}`}
+          href={`/memo/${memo.pri_no}`}
           className="block w-full py-2 px-4 bg-white text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors font-medium text-center focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
           aria-label={`상세 보기`}
         >
