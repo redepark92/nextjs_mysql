@@ -30,7 +30,8 @@ interface TotalPage {
 
 
 // 여기에 상수를 넣는게 맞는지는 모르겠지만.... 
-const itemsPerPage = 10; 
+const itemsPerPage = 12; 
+const PageNum = 10; 
 //const totalPages = 0;
 
 
@@ -95,6 +96,8 @@ export default function Memo() {
   const [memos, totalpage] = getMemo(pageparam);
   
   return (
+    <html>
+    <body>
     <div className="min-h-screen bg-gray-50">
       <Header />
 
@@ -133,7 +136,7 @@ export default function Memo() {
       <Pagenation
         nowPage={nowpage}
         totalPages={totalpage}
-        limit={5}
+        limit={PageNum}
         onPageChange={setCurrentPage}
       />
        </div>
@@ -142,6 +145,8 @@ export default function Memo() {
 
       <Footer />
     </div>
+    </body>
+    </html>
   );
 
 }
