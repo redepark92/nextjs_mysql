@@ -1,0 +1,12 @@
+*.log
+*.tmp
+node_modules/
+venv/
+.venv/
+dist/
+build/
+.env
+.env.local
+.next/
+.vscode/
+node_modules
