@@ -99,7 +99,7 @@ function getMemo(obj:UrlParam): [Memo[], number] {
 
 }
 
-export default function Memo() {
+export default function Memo() { 
 
   // 상세조회 후 다시 목록으로 올때, 위치 파악을 위해서... 
   const searchParams  = useSearchParams();
