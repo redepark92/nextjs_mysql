@@ -11,7 +11,7 @@ export default function About() {
 
       <main style={{ padding: '20px', minHeight: '60vh' }}>
 
-      <h2>회사 소개</h2>
+      <h2>회사 소개</h2> 
 
       <p>상품 가격을 추적하는 서비스를 제공합니다.</p>
 
