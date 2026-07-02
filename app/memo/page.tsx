@@ -101,7 +101,7 @@ export default function Memo() {
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-{/* 
+{/*   
 // 메모 목록처리..
       <h1>memo List</h1>
       <ul>
