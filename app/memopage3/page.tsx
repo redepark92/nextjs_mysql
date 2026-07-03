@@ -1,0 +1,207 @@
+// src/pages/index.tsx
+
+"use client"; 
+import { useEffect, useState } from 'react';
+import React from 'react';
+
+//import { useRouter } from 'next/navigation';
+import Link from "next/link";
+
+// useParams 로 변경도 고민해보자. 
+import { useSearchParams } from "next/navigation";
+
+//import Header from '@/app/components/Header';
+//import Footer from '@/app/components/Footer';
+import Pagenation from '@/app/components/PagenationPage3';
+import MemoList from '@/app/components/MemoListPage3';  // 클라이언트 컴포넌트
+
+
+interface Memo {
+  pri_no: string;
+  fw_date: string;
+  memo_text: string;
+  bg_color: string;
+}
+
+interface Page {
+  page?: number;
+};
+
+interface TotalPage {
+  total_page?: number;
+};
+
+
+// page 를 string 으로 하는 이유는, Card 에서 Url 처리할 때, 오류가 발생한다. 이를 방지하기 위해서 string 로 설정한다. 
+interface UrlParam {
+  page: number;
+  status: string;
+  searchtext?: string;
+}
+
+ 
+
+// 여기에 상수를 넣는게 맞는지는 모르겠지만.... 
+const itemsPerPage = 12; 
+const PageNum = 5; 
+
+// async 함수로 선언하여 비동기 작업을 처리합니다
+function getMemo(obj:UrlParam): [Memo[], number] {
+
+  const [memo, setMemo] = useState<Memo[]>([]);
+  const [totalPage, setTotalPages] = useState<number>(0);  
+
+  console.log("getMemo obj.page :", obj.page);
+  console.log("getMemo obj.status :", obj.status);
+  
+  try {
+    const fetchData = async () => {
+      const baseurl = '/api/memoList';
+      const setpage = obj.page ?? 1;
+      // string to number 
+      const setpageNum = Number(setpage);
+      const setstatus = obj.status ?? 'ING';
+
+
+      // limit 에 필요한 것을 정리하는데, start 대신에 page 를 넘기는 것도 고민하자, 
+      // 공통으로 사용하는 API라면, page를 받아서 값을 넘겨주는 것이 어떨지 고민이 된지.. 
+      const set_start = (setpageNum - 1) * itemsPerPage;
+      const set_scale = itemsPerPage;
+      const params = {
+        start: String(set_start),
+        scale: String(set_scale),
+        status: setstatus,
+      }
+
+      const queryString = new URLSearchParams(params).toString();
+      const requesturl = `${baseurl}?${queryString}`;
+      
+      const response = await fetch(requesturl);
+      const responseData = await response.json();
+      // total page 전달하기 전에 계산부터 하자. ceil 는 올림이다. floor 은 내림이다. 
+      const totalpage_exe = Math.ceil(responseData.total/responseData.scale);
+      // total Count 로 처리하는 것도 방법이다. 이는 고민하도록 하자... 
+
+      // Total 을 처리한다. 
+      setTotalPages(totalpage_exe);
+      // 목록 값을 처리한다. 
+      setMemo(responseData.data);
+
+    };
+    
+    //의존성 배열을 빈 배열([])로 설정하면, 컴포넌트가 처음 마운트될 때만 실행됩니다.
+    useEffect(() => {    
+      fetchData();
+    }, [obj.page]);
+
+    // status 값이 변경될 경우에도 다시 로드처리.. 
+    useEffect(() => {    
+      fetchData();
+    }, [obj.status]);    
+
+    return [memo, totalPage];
+
+  } catch (error) {
+    console.log('Memo 목록 가져오기 실패:');
+    console.error('Memo 목록 가져오기 실패:', error);
+    return [[], 0];
+  }
+
+}
+
+export default function Memo() { 
+
+  // 상세조회 후 다시 목록으로 올때, 위치 파악을 위해서... 
+  const searchParams  = useSearchParams();
+  const page = searchParams?.get("page") ?? "1";
+  const pageNum = Number(page);
+  const status = searchParams?.get("status") ?? "ING";
+
+
+  const [nowpage, setCurrentPage] = useState<number>(pageNum);
+  const [nowstatus, setCurrentStatus] = useState<string>(status);
+  console.log("NowPage is :", nowpage);
+  console.log("nowstatus is :", nowstatus);  
+  
+
+
+//  const pageparam: Page = { page: nowpage };
+
+  // UrlParam 을 처리.. 
+  // page 를 string 으로 하는 이유는, Card 에서 Url 처리할 때, 오류가 발생한다. 이를 방지하기 위해서 string 로 설정한다. 
+  // searchtext 가 있을 경우, 추가 하면 된다. 
+  const urlparam: UrlParam = { page: nowpage, status: nowstatus };
+  console.log("urlparam.page is :", urlparam.page);
+  console.log("urlparam.status is :", urlparam.status);  
+
+//  const pageparam: Page = { page: page };
+//  const pageparam: UrlParam = { page: nowpage, status: nowstatus };
+
+  // 진행중, 완료 메모를 선택하는 버튼을 적용한다. 
+  const handleStatusChange = (status: string) => {
+    //urlparam.status = status;
+    setCurrentStatus(status);
+    //console.log("handleStatusChange status : ", status);
+    //console.log("handleStatusChange nowstatus : ", nowstatus);
+  }
+
+  // 두개의 값을 리턴으로 받는다... 
+  const [memos, totalpage] = getMemo(urlparam);
+  
+
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+
+
+    {/* 메모 그리드 */}
+      <main className="p-8 max-w-6xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Memo 목록
+        </h1>
+
+    {/* 메모 진행중, 완료 필터링 버튼 처리. */}     
+      <div className="mt-4 flex justify-center space-x-2">
+          <button 
+            onClick={() => {handleStatusChange('ING'); }} 
+            disabled={nowstatus==='ING'}
+            className="flex size-10 items-center justify-center rounded-full bg-gray-200 p-2 disabled:cursor-not-allowed">
+              ING
+          </button>
+          <button 
+            onClick={() => {handleStatusChange('END'); }} 
+            disabled={nowstatus==='END'}
+            className="flex size-10 items-center justify-center rounded-full bg-gray-200 p-2 disabled:cursor-not-allowed">
+              End
+          </button>
+        </div>
+
+        {/* 데이터가 없을 때 빈 상태 표시 */}
+        {memos.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">
+              {'등록된 메모가 없습니다.'}
+            </p>
+          </div>
+        ) : (
+          // 클라이언트 컴포넌트에 필터링된 메모 목록 전달
+          <MemoList memolist={memos} urlparam={urlparam} />
+        )}
+
+      </main>
+
+
+      <div>
+      <Pagenation
+        nowPage={nowpage}
+        totalPages={totalpage}
+        limit={PageNum}
+        onPageChange={setCurrentPage}
+//        urlparam={urlparam}
+      />
+       </div>
+
+    </div>
+  );
+
+}

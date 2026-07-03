@@ -1,25 +1,7 @@
 // app/components/styled/memo/MemoCard.tsx
 
 import Link from 'next/link';
-
-
-/*
-interface UrlParam {
-  page: string;
-  status: string;
-  searchtext?: string;
-}
-
-interface MemoCardProps {
-    memo: {
-        pri_no: string;
-        fw_date: string;
-        memo_text: string;
-        bg_color: string;
-    };
-    urlparam: Partial<UrlParam>; 
-  }
-*/
+import { useRouter } from 'next/navigation'
 
 type UrlParam = {
   page: number;
@@ -39,10 +21,12 @@ type MemoCardProps = {
 
 export default function ProductCard({ memo, urlparam }: MemoCardProps) {
 
+    const router = useRouter();
+
   // Card 에서 상세페이지로 가는 링크에 Param 으로 넘기는 값을 셋팅한다. 
   //const queryString = new URLSearchParams(urlparam).toString();
-  // page 타입이 number 로 인해서 발생하는 오류를 해결하는 방식   
-/*  
+  // page 타입이 number 로 인해서 발생하는 오류를 해결하는 방식 
+/*
   // 1번, 내부에 type을 변경하여 처리한다. 
   const queryString = new URLSearchParams({
     page: String(urlparam.page),
@@ -61,6 +45,10 @@ export default function ProductCard({ memo, urlparam }: MemoCardProps) {
     params.set("searchtext", urlparam.searchtext);
   }
   const queryString = params.toString();
+
+  const handleClick = (pri_no: string) => {
+    router.push(`/memopage3/${pri_no}?${queryString}`);
+  }
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow p-5 mb-5">
@@ -88,6 +76,15 @@ export default function ProductCard({ memo, urlparam }: MemoCardProps) {
 
       {/* onClick={handleDetailNavigation} */}
       <div className="mt-4 pt-4 border-t border-gray-100">
+
+          <div className="block w-full py-2 px-4 bg-white text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors font-medium text-center focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2" >
+            <div onClick={() => {
+              handleClick(memo.pri_no)
+            }} > router 로 값을 전달
+              {/* 포스터 이미지와 영화 타이틀 보여주는 코드 생략 */}
+            </div>        
+          </div>  
+
         <Link 
           href={`/memopage2/${memo.pri_no}?${queryString}`}
           className="block w-full py-2 px-4 bg-white text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors font-medium text-center focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
