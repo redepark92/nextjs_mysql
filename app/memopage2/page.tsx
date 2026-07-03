@@ -12,8 +12,8 @@ import { useSearchParams } from "next/navigation";
 
 import Header from '@/app/components/Header';
 import Footer from '@/app/components/Footer';
-import Pagenation from '@/app/components/PagenationPage';
-import MemoList from '@/app/components/MemoListPage';  // 클라이언트 컴포넌트
+import Pagenation from '@/app/components/PagenationPage2';
+import MemoList from '@/app/components/MemoListPage2';  // 클라이언트 컴포넌트
 
 
 interface Memo {
@@ -34,12 +34,12 @@ interface TotalPage {
 
 // page 를 string 으로 하는 이유는, Card 에서 Url 처리할 때, 오류가 발생한다. 이를 방지하기 위해서 string 로 설정한다. 
 interface UrlParam {
-  page: string;
+  page: number;
   status: string;
   searchtext?: string;
 }
 
-
+ 
 
 // 여기에 상수를 넣는게 맞는지는 모르겠지만.... 
 const itemsPerPage = 12; 
@@ -51,12 +51,17 @@ function getMemo(obj:UrlParam): [Memo[], number] {
   const [memo, setMemo] = useState<Memo[]>([]);
   const [totalPage, setTotalPages] = useState<number>(0);  
 
+  console.log("getMemo obj.page :", obj.page);
+  console.log("getMemo obj.status :", obj.status);
+  
   try {
     const fetchData = async () => {
       const baseurl = '/api/memoList';
       const setpage = obj.page ?? 1;
+      // string to number 
       const setpageNum = Number(setpage);
       const setstatus = obj.status ?? 'ING';
+
 
       // limit 에 필요한 것을 정리하는데, start 대신에 page 를 넘기는 것도 고민하자, 
       // 공통으로 사용하는 API라면, page를 받아서 값을 넘겨주는 것이 어떨지 고민이 된지.. 
@@ -89,9 +94,10 @@ function getMemo(obj:UrlParam): [Memo[], number] {
       fetchData();
     }, [obj.page]);
 
+    // status 값이 변경될 경우에도 다시 로드처리.. 
     useEffect(() => {    
       fetchData();
-    }, [obj.status]);
+    }, [obj.status]);    
 
     return [memo, totalPage];
 
@@ -111,22 +117,36 @@ export default function Memo() {
   const pageNum = Number(page);
   const status = searchParams?.get("status") ?? "ING";
 
+
+  const [nowpage, setCurrentPage] = useState<number>(pageNum);
+  const [nowstatus, setCurrentStatus] = useState<string>(status);
+  console.log("NowPage is :", nowpage);
+  console.log("nowstatus is :", nowstatus);  
+  
+
+
+//  const pageparam: Page = { page: nowpage };
+
   // UrlParam 을 처리.. 
   // page 를 string 으로 하는 이유는, Card 에서 Url 처리할 때, 오류가 발생한다. 이를 방지하기 위해서 string 로 설정한다. 
   // searchtext 가 있을 경우, 추가 하면 된다. 
-  const urlparam: UrlParam = { page: page, status: 'ING' };
+  const urlparam: UrlParam = { page: nowpage, status: nowstatus };
+  console.log("urlparam.page is :", urlparam.page);
+  console.log("urlparam.status is :", urlparam.status);  
 
 //  const pageparam: Page = { page: page };
-  const pageparam: UrlParam = { page: page, status: status };
+//  const pageparam: UrlParam = { page: nowpage, status: nowstatus };
 
   // 진행중, 완료 메모를 선택하는 버튼을 적용한다. 
   const handleStatusChange = (status: string) => {
-    urlparam.status = status;
-    console.log("urlparam.status : ", urlparam.status);
+    //urlparam.status = status;
+    setCurrentStatus(status);
+    //console.log("handleStatusChange status : ", status);
+    //console.log("handleStatusChange nowstatus : ", nowstatus);
   }
 
   // 두개의 값을 리턴으로 받는다... 
-  const [memos, totalpage] = getMemo(pageparam);
+  const [memos, totalpage] = getMemo(urlparam);
   
 
 
@@ -142,14 +162,21 @@ export default function Memo() {
           Memo 목록
         </h1>
 
-    {/* 메모 진행중, 완료 필터링 버튼 처리. */}      
-        <button 
-          onClick={() => {handleStatusChange('End'); }} 
-          //disabled={nowPage===1}
-          className="flex size-10 items-center justify-center rounded-full bg-gray-200 p-2 disabled:cursor-not-allowed">
-            End
-        </button>
-
+    {/* 메모 진행중, 완료 필터링 버튼 처리. */}     
+      <div className="mt-4 flex justify-center space-x-2">
+          <button 
+            onClick={() => {handleStatusChange('ING'); }} 
+            disabled={nowstatus==='ING'}
+            className="flex size-10 items-center justify-center rounded-full bg-gray-200 p-2 disabled:cursor-not-allowed">
+              ING
+          </button>
+          <button 
+            onClick={() => {handleStatusChange('END'); }} 
+            disabled={nowstatus==='END'}
+            className="flex size-10 items-center justify-center rounded-full bg-gray-200 p-2 disabled:cursor-not-allowed">
+              End
+          </button>
+        </div>
 
         {/* 데이터가 없을 때 빈 상태 표시 */}
         {memos.length === 0 ? (
@@ -168,10 +195,11 @@ export default function Memo() {
 
       <div>
       <Pagenation
-        nowPage={pageNum}
+        nowPage={nowpage}
         totalPages={totalpage}
         limit={PageNum}
-        urlparam={urlparam}
+        onPageChange={setCurrentPage}
+//        urlparam={urlparam}
       />
        </div>
 

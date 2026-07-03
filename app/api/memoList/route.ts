@@ -9,25 +9,29 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const start = parseInt(searchParams.get('start') || '0');
         const scale = parseInt(searchParams.get('scale') || '10');
+        const status = searchParams.get('status') || 'ING';
 
         // user 테이블의 모든 데이터를 조회 
         console.log("Memo_query, Start");
         console.log("Memo_query, Start : ", start); 
         console.log("Memo_query, scale : ", scale); 
+        console.log("Memo_query, status : ", status); 
 
         // 여기서 Total을 구한다. 
-        const totalQuery = `select count(*) AS total from ahn_memo `;
+        const totalQuery = `select count(*) AS total from ahn_memo where state_info = '${status}'`;
         const [total] = await pool.query(totalQuery);
         // total[0] 만 하면, total 아래에 total : 값 형식으로 저장된다. 그래서. total[0].total 로 처리하여야 한다. 
         const TotalNum = total[0].total;
         
 
-        // 여기서 목록을 구한다. 
+        // 여기서 목록을 구한다. where state_info = '${status}'
         const query = `
         select pri_no, bg_color, fw_date, left(memo, 100) AS memo_text from ahn_memo 
+        where state_info = '${status}'
         order by fw_date desc 
         limit ${start}, ${scale}
         `;
+        //console.log("rows.query : ", query);
         const [rows] = await pool.query(query);
 
         // 리턴에, 현재 쿼리의 갯수를 넘기려고 하는데, rows.lenght 에서 오류가 발생해서, 다음처럼 처리하였음. 
